@@ -1,0 +1,459 @@
+import React from 'react'
+import { useState } from 'react';
+
+export default function Register() {
+
+  const [values, setValues] = useState({
+    name: '',
+    password: '',
+    email: '',
+    phone: ''
+  })
+  const [searchValue, setSearchValue] = useState("");
+  const [searchData, setSearchData] = useState([]);
+  const [records, setrecords] = useState([]);
+
+  const [validations, setValidations] = useState({
+    name: '',
+    password: '',
+    email: '',
+    phone: '',
+  })
+
+const [index,setindex]=useState();
+const [update,setupdate]=useState(false);
+// const {name,password,email,phone}=values;
+
+  function updatedata(i){
+  
+    let {name,password,email,phone}=records[i]
+    setValues({name,password,email,phone})
+    setupdate(true)
+    setindex(i)
+}
+function updateinfo(i){
+      const total=[...records]
+    total.splice(index,1,{name,password,email,phone})
+    setrecords(total)
+    setupdate(false)
+    // setindex(i)/
+    setValues({name:"",password:"",email:"",phone:""})
+}
+
+  const validateAll = () => {
+    const { name, password, email, phone } = values
+    const validations = { name: '', password: '', email: '', phone: '' }
+    let isValid = true
+    // name validation 
+    if (!name) {
+      validations.name = <p style={{color:"red"}} className='text '>Name is required</p>
+      isValid = false
+    }
+    
+    else if (name && !/^[a-zA-Z ]*$/.test(name)) {
+      validations.name = <p className='text text-danger'>Enter only character</p>
+
+      isValid = false
+    }
+    else if (records.find(values => values.name.toLowerCase() == name.toLowerCase())) {
+      validations.name = <p className='text text-danger'>Name is already exists</p>
+
+      isValid = false
+    }
+
+
+    //password validation
+    if (!password) {
+      validations.password = <p className='text text-success'>password is required</p>
+      isValid = false
+    }
+    else if (password.length < 6 || password.length > 50) {
+      validations.password = <p className='text text-danger'>password must contain between 6 and 50 characters</p>
+      isValid = false
+    }
+
+
+    // email validation
+    if (!email) {
+      validations.email = <p className='text text-success'>Email is required</p>
+      isValid = false
+    }
+    else if (email && !/\S+@\S+\.\S+/.test(email)) {
+      validations.email = <p className='text text-danger'>Email format must be as example@mail.com</p>
+      isValid = false
+    }
+    //phone validation
+    if (!phone) {
+      validations.phone = <p className='text text-success'>phone is required</p>
+      isValid = false
+    }
+    else if (phone.length < 10) {
+      validations.phone = <p className='text text-danger'>compalsory 10 digits insert</p>
+      isValid = false
+    }
+    setValidations(validations)
+
+
+    return isValid
+  }
+
+
+  const handleChangeSearch = (e) => {
+    setSearchValue(e.target.value);
+    const searchedData = records.filter(x=>x.name.includes(e.target.value));
+    console.log('searchedData',searchedData);
+    setSearchData(searchedData);
+
+  }
+    const handleChange = (e) => {
+
+    const { name, value } = e.target
+    setValues({ ...values, [name]: value })
+  }
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+
+    // const isexist=records.find(values=>values.name === name)
+    // if(isexist)
+    // return;
+
+
+    const isValid = validateAll()
+
+    if (!isValid) {
+      return false
+    }
+
+
+    const newRecord = { ...values, id: new Date().getTime().toString() }
+    setrecords([...records, newRecord]);
+    console.log(records);
+
+    setValues({ name: "", email: "", phone: "", password: "" });
+
+  }
+
+  const deleteTableRows = (index) => {
+    const rows = [...records];
+    rows.splice(index, 1);
+    setrecords(rows);
+    console.log(rows);
+  };
+
+  const { name, password, email, phone } = values
+
+  const {
+
+    name: nameVal,
+    password: passwordVal,
+    email: emailVal,
+    phone: phoneVal
+  } = validations
+
+
+  return (
+    <>
+      <div className='container'>
+         <center>
+          <h1>Simple form</h1>
+          <form onSubmit={handleSubmit}>
+            <div className='mb-5'>
+              <label htmlFor='name'>name</label>
+              <input
+                type="text"
+                name="name"
+                value={name}
+                onChange={handleChange}
+                onBlur={validateAll}
+
+              />
+
+              <div>{nameVal}</div>
+            </div>
+
+            <div className='mb-5'>
+              <label htmlFor='password'>Password</label>
+              <input
+                type="password"
+                name="password"
+                value={password}
+                onChange={handleChange}
+                onBlur={validateAll}
+              />
+
+              <div>{passwordVal}</div>
+            </div>
+
+            <div className='mb-5'>
+              <label htmlFor='email'>Email</label>
+              <input
+                type="email"
+                name="email"
+                value={email}
+                onChange={handleChange}
+                onBlur={validateAll}
+              />
+
+              <div>{emailVal}</div>
+            </div>
+            <div className='mb-5'>
+              <input
+                type="text"
+                name="search"
+                placeholder='search data'
+                value={searchValue}
+                onChange={handleChangeSearch}
+                // onBlur={validateAll}
+              />
+
+              <div>{searchData?.map((curElem,index)=>{
+                return (
+                    
+                  <tr key={index}>
+                    <td>{index + 1}</td>
+                    <td>{curElem.name}</td>
+                    <td>{curElem.password}</td>
+                    <td>{curElem.email}</td>
+                    <td>{curElem.phone}</td>
+                    <td><td><button className="btn btn-danger" onClick={() => (deleteTableRows(index))}>DELETE</button></td></td>
+                    <td><td><button className="btn btn-primary" onClick={() => (updatedata(index))}>UPDATE</button></td></td>
+                 
+                  </tr>
+                )
+              })}</div>
+            </div>
+
+            <div className='mb-5'>
+              <label htmlFor='phone'>Phone</label>
+              <input
+                type="phone"
+                name="phone"
+                minLength={10}
+                maxLength={10}
+                value={phone}
+                onChange={handleChange}
+                onBlur={validateAll}
+              />
+
+              <div>{phoneVal}</div>
+            </div>
+
+            {/* <button className="btn btn-success" onClick={handleSubmit}>REGISTER</button> */}
+            <button className="btn btn-success" onClick={!update?handleSubmit:updateinfo}>{!update?`REGISTER`:`Update data`}</button>
+         
+          </form>
+
+          <table className="table">
+            <thead>
+              <tr>
+                <th>Id</th>
+                <th>NAME</th>
+                <th>PASSWORD</th>
+                <th>EMAIL</th>
+                <th>PHONE</th>
+              </tr>
+            </thead>
+            <tbody>
+              {
+                records.map((curElem, index) => {
+                  return (
+                    
+                    <tr key={index}>
+                      <td>{index + 1}</td>
+                      <td>{curElem.name}</td>
+                      <td>{curElem.password}</td>
+                      <td>{curElem.email}</td>
+                      <td>{curElem.phone}</td>
+                      <td><td><button className="btn btn-danger" onClick={() => (deleteTableRows(index))}>DELETE</button></td></td>
+                      <td><td><button className="btn btn-primary" onClick={() => (updatedata(index))}>UPDATE</button></td></td>
+                   
+                    </tr>
+                  )
+                })
+              }
+
+            </tbody>
+          </table>
+
+        </center>
+      </div>
+    </>
+  )
+}
+
+// import React, { useState } from 'react';
+// import { useRef,useEffect } from 'react';
+
+// function Register() {
+//   const [userRegisteration,setUserregistertion]=useState({
+//     username:"",
+//     password:"",
+//     email:"",
+//     phone:""
+
+//   });
+//   const [formerrors,setformerrors]=useState({});
+//   const [issubmit,setissubmit]=useState(false);
+
+//   const [records,setRecords]=useState([]);
+  
+
+
+
+
+//   const handleInput = (e) => {
+//     const name=e.target.name;
+//     const value=e.target.value;
+//     // console.log(name);
+
+//     setUserregistertion({...userRegisteration,[name]:value});
+//   }
+
+//   const handelSubmit = (e) => {
+//     e.preventDefault();
+// // setformerrors(validate(userRegisteration));
+// // setissubmit(true);
+//     const newRecord={...userRegisteration,id:new Date().getTime().toString()}
+//     console.log(records);
+//     setRecords([...records, newRecord]);
+//     console.log(records);
+
+//     setUserregistertion({username:"", email:"", phone:""});
+
+//   }
+
+//   const deletetablerows = (index) => {
+//     const rows = [...records];
+//     rows.splice(index,1);
+//     setRecords(rows);
+//   }
+
+// useEffect(()=>{
+//   console.log(formerrors);
+//   if(Object.keys(formerrors).length === 0 && issubmit){
+//     console.log(userRegisteration);
+//   }
+// },[formerrors]);
+
+
+// const validate = (values)=>{
+//   const errors = {};
+//   const regex = /^[\s@]+@[^\s@]+\.[^\s@]{2,}$/i;
+//   if(!values.username){
+//     errors.username="username is required";
+//   }
+//   if(!values.password){
+//     errors.password="password is required";
+//   }
+//   else if(values.password < 4)
+//   {
+//     errors.password="password then 4";
+//   }else if(values.password > 10)
+//   {
+//     errors.password="password then 10 cha";
+//   }
+//   if(!values.email){
+//     errors.email="email is required";
+//   } else if(!regex.test(values.email))
+//   {
+//     errors.email="email formate";
+//   }
+// return errors;
+// };
+
+
+
+
+//   return(
+//     <>
+// <div>
+// <pre>{JSON.stringify(userRegisteration,undefined,2)}</pre>
+// <center>
+// <div className="container mt-3">
+// <form action='' onSubmit={handelSubmit(onsubmit)}>
+// <h1>Registration form</h1>
+// <div className="mt-3 mb-3">
+      
+//       <label htmlFor="username">user name</label>
+//       <input type="text" autoComplete='off' className="form-control"
+//       value={userRegisteration.username}
+//       onChange={handleInput}
+//       name="username" id="username" 
+//       ref={userRegisteration({required: "username"})}/>
+     
+//     </div>
+//     <div className="mb-3">
+//       <label htmlFor="password">password</label>
+//       <input type="password" autoComplete='off' className="form-control"
+//       value={userRegisteration.password}
+//       onChange={handleInput}
+//       name="password" id="password" 
+//       ref={userRegisteration}/>
+//     </div>
+
+//     <div className="mb-3">
+//       <label htmlFor="email">E-mail</label>
+//       <input type="text" autoComplete='off' className="form-control"
+//       value={userRegisteration.email}
+//       onChange={handleInput}
+//       name="email" id="email" 
+//       ref={userRegisteration}/>
+//     </div>
+
+//     <div className="mb-3">
+//       <label htmlFor="phone">phone</label>
+//       <input type="text" autoComplete='off' className="form-control"
+//       value={userRegisteration.phone}
+//       onChange={handleInput}
+//       name="phone" id="phone" 
+//       ref={userRegisteration}/>
+//     </div>
+  
+// <button type="submit" >Registration</button>
+// </form>
+// <table className='table'>
+//   <thead>
+//     <tr>
+//       <th>id</th>
+//       <th>username</th>
+//       <th>password</th>
+//       <th>email address</th>
+//       <th>phone</th>
+//     </tr>
+//   </thead>
+//   <tbody>
+//     {
+//           records.map((curElem,index) => {
+//             return (
+            
+          
+//              <tr key={index}>
+//             <td>{curElem.index+1}</td>
+//             <td>{curElem.username}</td>
+//             <td>{curElem.password}</td>
+//             <td>{curElem.email}</td>
+//             <td>{curElem.phone}</td>
+//             <td><td><button className='btn btn-danger' onClick={()=>(deletetablerows(index))}>DELETE</button></td></td>
+//             </tr>
+            
+//             )})}
+    
+//   </tbody>
+// </table>
+
+
+
+// </div>
+// </center>
+
+
+// </div>
+
+// </>
+//   )
+
+            
+//             }
+
+// export default Register;
